@@ -5,7 +5,8 @@
     # Specify the source of Home Manager and Nixpkgs.
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
+    
+   
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -26,6 +27,18 @@
       inputs.hyprland.follows = "hyprland";
     };
 
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+
+
+       nix-super.url = "github:privatevoid-net/nix-super/ba035e1ea339a97e6ba6a1dd79e0c0e334240234";
+      schizofox.url = "github:schizofox/schizofox";
+
+
+      armcord-hm = { 
+       url = "github:n3oney/armcord-hm";
+       inputs.nixpkgs.follows = "nixpkgs";
+      };
+
     
       #EWW like app
     ags.url ="github:Aylur/ags";
@@ -33,7 +46,7 @@
       };
   
 
-  outputs = inputs@{ nixpkgs, home-manager, ... }:{
+  outputs = inputs@{ nixpkgs, home-manager,nixos-hardware, ... }:{
  nixosConfigurations = {
       nixos = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs; };
@@ -41,11 +54,12 @@
                     
         modules = [
           ./configuration.nix
+          nixos-hardware.nixosModules.dell-inspiron-14-5420
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.he = import ./home.nix ;
+            home-manager.users.dennkaii = import ./home.nix ;
             home-manager.extraSpecialArgs = { inherit inputs; };           
         }
       ];
