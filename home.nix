@@ -1,151 +1,218 @@
 { inputs, config, pkgs, ... }:let
-inherit (inputs) anyrun hyprland hy3 ags; 
-in {
+inherit (inputs) anyrun schizofox hyprland hy3 ags armcord-hm; 
+in{
 
-  home.username = "he";
-  home.homeDirectory = "/home/he";
-  home.stateVersion = "23.05";
+  # home.username = "dennkaii";
+  # home.homeDirectory = "/home/dennkaii";
+  # home.stateVersion = "23.05";
+ome.packages = with pkgs;[
+  # floorp
+  #armcord
+  
 
- imports =[ anyrun.homeManagerModules.default
-./programs/hyprland.nix
-./programs/wezterm.nix ];
-#hyprland.homeManagerModules.default ] ;
- 
- programs.home-manager.enable = true;
-
-
-
-  home.packages = with pkgs; [
-
-    ranger
-    vivaldi    
-    swww
-    wine
-    pavucontrol
-    blueman
-    starship
-    eww-wayland
-    xdg-desktop-portal-hyprland
-    vulkan-tools
-    cliphist
-    gamescope
-    logseq
-    wireplumber
-    nwg-dock-hyprland
-
-    
-    betterdiscordctl
-    (pkgs.discord.override {
-  # remove any overrides that you don't want
-  withOpenASAR = true;
-  withVencord = true;
-})
-
-    font-manager
-    xarchiver
+home.packages = with pkgs;[
+  # floorp
+  #armcord
+  # vivaldi
+  inputs.hyprland-contrib.packages.${pkgs.system}.grimblast
+  libreoffice-fresh
+  gamescope
+  wireplumber
+  wine
+  vulkan-tools
+  pavucontrol
+  gnome.nautilus
+  tidal-hifi
 
 
-    
-    socat
-    inputs.ags.packages.${pkgs.system}.default
-    inputs.hyprland-contrib.packages.${pkgs.system}.grimblast
-
+  
     (lutris.override {
       extraPkgs = pkgs: [
+#Gamescope things
+      xorg.libXcursor
+        xorg.libXi
+        xorg.libXinerama
+
+        xorg.libXScrnSaver
+        libpng
+        libpulseaudio
+        libvorbis
+        stdenv.cc.cc.lib
+        libkrb5
+        keyutils
+
+        
         winetricks
         winePackages.fonts
-        wineWowPackages.waylandFull       
+        wineWowPackages.waylandFull
+         gst_all_1.gstreamer
+          # Common plugins like "filesrc" to combine within e.g. gst-launch
+          gst_all_1.gst-plugins-base
+          # Specialized plugins separated by quality
+          gst_all_1.gst-plugins-good
+          gst_all_1.gst-plugins-bad
+          gst_all_1.gst-plugins-ugly
+          # Plugins to reuse ffmpeg to play almost every video format
+          gst_all_1.gst-libav
+          # Support the Video Audio (Hardware) Acceleration API
+          gst_all_1.gst-vaapi     
       ];
     }) 
-  ];
 
-gtk.enable =true;
+  swww
+];
 
-gtk.cursorTheme.package = pkgs.bibata-cursors;
-gtk.cursorTheme.name = "Bibata-Modern-Ice";
-gtk.theme.package = pkgs.colloid-gtk-theme;
-gtk.theme.name = "Colloid";
+home.file.".ssh/allowed_signers".text =
+    "* ${builtins.readFile ./id_ed25519.pub}";
 
-gtk.iconTheme.package  = pkgs.papirus-icon-theme;
-gtk.iconTheme.name = "Papirus-Dark";
 
-    gtk.gtk3.extraConfig = {
-      gtk-application-prefer-dark-theme=1;
-    };
+programs.git = {
+  enable = true;
+  userName = "dennkaii";
+  userEmail = "70287696+dennkaii@users.noreply.github.com";
+
+  extraConfig = {
+    commit.gpgsign = true;
+    gpg.format = "ssh";
+    gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+    user.signingkey = "~/.ssh/id_ed25519.pub";
     
-    gtk.gtk4.extraConfig = {
-      gtk-application-prefer-dark-theme=1;
-    };
-
-
-programs.helix = {
-  enable = true;
-  defaultEditor = true;
-  settings = {
-    theme = "base16_transparent";
-    editor = {
-      line-number = "relative"; 
-    };
-    editor.statusline = {
-      left = ["mode" "spinner" "separator"];
-      center = ["file-name"];
-      right = ["separator" "diagnostics" "spacer" "position" "file-type" "version-control"];
-
-      separator = "│";
-      mode.normal = "NOR";
-      mode.insert = "EDT";
-      mode.select = "SEL";
-    };
-      };
-};
-
-#ANYRUN
-programs.anyrun = {
-  enable = true;
-   
-  config = {
-  closeOnClick = true;
-  hidePluginInfo = true;
-  width.fraction = 0.3;
-  y.fraction = 0.3;
- plugins = with inputs.anyrun.packages.${pkgs.system}; [
-    applications
-    rink
-    translate
-    websearch
-    ];
-
   };
-  extraCss = ''
-
-  #window,
-      #match,
-      #entry,
-      #plugin,
-      #main {
-        background: transparent;
-      }
-
-       #match:selected {
-        background: rgba(203, 166, 247, 0.7);
-      }
-
-      #match {
-        padding: 3px;
-        border-radius: 5px;
-      }
-
-      #entry, #plugin:hover {
-        border-radius: 16px;
-      }
-
-      box#main {
-        background: rgb(30, 30, 46);
-        border: 1px solid #1c272b;
-        border-radius: 24px;
-        padding: 8px;
-      }
-
-  '';
+  
 };
+
+
+  imports = [
+   anyrun.homeManagerModules.default
+  schizofox.homeManagerModules.default
+  armcord-hm.homeManagerModules.default  ];
+
+  programs.zellij = {
+    enable = true;
+    settings  = {
+    default_shell =  "fish";
+      theme = "default";
+      simplified_ui = true;
+      default_layout = "compact";
+            };
+      #Not working the fish integration hm module
+    # enableFishIntegration = true;
+     enableFishIntegration = true;
+  };
+
+
+#   programs.fish = {enable = true;
+#   interactiveShellInit = ''
+#    set fish_greeting # Disable greeting
+
+#   if not set -q ZELLIJ                                                                                                                                                           
+#     if test "$ZELLIJ_AUTO_ATTACH" = "true"                                                                                                                                     
+#         zellij attach -c                                                                                                                                                       
+#     else                                                                                                                                                                       
+#         zellij                                                                                                                                                                 
+#     end                                                                                                                                                                        
+                                                                                                                                                                               
+#     if test "$ZELLIJ_AUTO_EXIT" = "true"                                                                                                                                       
+#         kill $fish_pid                                                                                                                                                         
+#     end                                                                                                                                                                        
+# end
+#      '';};
+
+
+
+#   programs.armcord = {
+#     enable = true;
+#         armcordSettings = {
+#       # here's mine:
+#       alternativePaste = false;
+#       armcordCSP = true;
+#       automaticPatches = false;
+#       channel = "stable";
+#       disableAutogain = true;
+#       minimizeToTray = false;
+#       multiInstance = false;
+#       performanceMode = "performance";
+#       skipSplash = true;
+#       spellcheck = true;
+#       startMinimized = false;
+#       tray = true;
+#       trayIcon = "default";
+#       useLegacyCapturer = false;
+#       # windowStyle = "transparent";
+#     };
+
+
+#     };
+
+
+# programs.schizofox = {
+#   enable = true;
+
+#   # theme = {
+#   #   background-darker = "181825";
+#   #   # background = "1e1e2e";
+#   #   # foreground = "cdd6f4";
+#   #   font = "Lexend";
+#   #   simplefox.enable = true;
+#   #   darkreader.enable = true;
+#   #   # extraCss = ''
+#   #   #   body {
+#   #   #     color: red !important;
+#   #   #   }
+#   #   # '';
+#   # };
+
+
+#   };
+
+#   programs.anyrun = {
+#   enable = true;
+   
+#   config = {
+#   closeOnClick = true;
+#   hidePluginInfo = true;
+#   width.fraction = 0.3;
+#   y.fraction = 0.3;
+#  plugins = with inputs.anyrun.packages.${pkgs.system}; [
+#     applications
+#     rink
+#     translate
+#     websearch
+#     ];
+
+#   };
+#   extraCss = ''
+
+#   #window,
+#       #match,
+#       #entry,
+#       #plugin,
+#       #main {
+#         background: transparent;
+#       }
+
+#        #match:selected {
+#         background: rgba(203, 166, 247, 0.7);
+#       }
+
+#       #match {
+#         padding: 3px;
+#         border-radius: 5px;
+#       }
+
+#       #entry, #plugin:hover {
+#         border-radius: 16px;
+#       }
+
+#       box#main {
+#         background: rgb(30, 30, 46);
+#         border: 1px solid #1c272b;
+#         border-radius: 24px;
+#         padding: 8px;
+#       }
+
+#   '';
+# };
+  
+
 }
